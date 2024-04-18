@@ -1,7 +1,6 @@
 // Retrieve tasks and nextId from localStorage
 let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
 let nextId = JSON.parse(localStorage.getItem("nextId")) || 1;
-const myModal = document.getElementById('exampleModal');
 const taskNameInputEl = $('#task-name-input');
 const taskTypeInputEl = $('#task-description-input');
 const taskDateInputEl = $('#due-date-input');
@@ -36,11 +35,18 @@ function saveTasksToStorage(tasks) {
 function createTaskCard(task) {
   const taskCard = $('<div>')
       .addClass('card project-card draggable my-3')
-      .attr('data-project-id', task.id);
-  const cardHeader = $('<div>').addClass('card-header h4').text(task.name);
-  const cardBody = $('<div>').addClass('card-body');
-  const cardDescription = $('<p>').addClass('card-text').text(task.type);
-  const cardDueDate = $('<p>').addClass('card-text').text(task.dueDate);
+      .attr('id', 'draggable-nonvalid')
+      .attr('data-project-id', task.id)
+      .attr('data-droppable-id', 'droppable');
+  const cardHeader = $('<div>')
+      .addClass('card-header h4')
+      .text(task.name);
+  const cardBody = $('<div>')
+      .addClass('card-body');
+  const cardDescription = $('<p>')
+      .addClass('card-text').text(task.type);
+  const cardDueDate = $('<p>').addClass('card-text')
+      .text(task.dueDate);
   const cardDeleteBtn = $('<button>')
       .addClass('btn btn-danger delete')
       .text('Delete')
@@ -95,30 +101,27 @@ const todoList = $('#not-started-tasks');
    }
  }
 
-
-  // Make task cards draggable
-  $('.draggable').draggable({
-    opacity: 0.7,
-    zIndex: 100,
-    helper: function (e) {
-      const original = $(e.target).hasClass('ui-draggable')
-        ? $(e.target)
-        : $(e.target).closest('.ui-draggable');
-      // ? Return the clone with the width set to the width of the original card. This is so the clone does not take up the entire width of the lane. This is to also fix a visual bug where the card shrinks as it's dragged to the right.
-      return original.clone().css({
+   $('.draggable').draggable({
+     opacity: 0.7,
+     zIndex: 100,
+     helper: function (e) {
+       const original = $(e.target).hasClass('ui-draggable')
+         ? $(e.target)
+         : $(e.target).closest('.ui-draggable');
+       return original.clone().css({
         width: original.outerWidth(),
-      });
-    },
-  });
-}
+    });
+   },
+   });
+  }
 
 // Todo: create a function to handle deleting a task
 function handleDeleteTask() {
-  const taskId = $(this).attr('data-project-id');
+  const projectId = $(this).attr('data-project-id');
   const tasks = readTasksFromStorage();
 
   for (let i = 0; i < tasks.length; i++) { 
-    if (tasks[i].id === taskId) { 
+    if (tasks[i].id === projectId) { 
       tasks.splice(i, 1); break; } }
 
         
@@ -151,6 +154,8 @@ function handleAddTask(event) {
   taskNameInputEl.val('');
   taskTypeInputEl.val('');
   taskDateInputEl.val('');
+
+  $('#exampleModal').modal('hide');
 }
 
 
@@ -159,11 +164,11 @@ function handleAddTask(event) {
 function handleDrop(event, ui) {
   const tasks = readTasksFromStorage();
 
-  const taskId = ui.draggable[0].dataset.taskId;
+  const projectId = ui.draggable[0].dataset.projectId;
   const newStatus = event.target.id;
 
   for (let task of tasks) {
-    if (task.id === taskId) {
+    if (task.id === projectId) {
       task.status = newStatus;
     }
 }
@@ -176,18 +181,29 @@ taskFormEl.on('submit', handleAddTask);
 taskFormEl.on('click', '.btn-delete-project', handleDeleteTask);
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
+	// jQuery Ui Droppable
+  $(function() {
+    $('.droppable').droppable ({
+      accept: ".draggable",
+      classes: {
+        "ui-droppable-active": "ui-state-active",
+        "ui-droppable-hover": "ui-state-hover"
+      },
+      drop: function(event, ui) {
+        $(this)
+          .addClass("ui-state-highlight")
+          .find("p")
+          .html("Dropped!");
+      }
+    });
+  });
+
 $(document).ready(function () {
   renderTaskList();
 
   $('#taskDueDate').datepicker({
     changeMonth: true,
     changeYear: true,
-  });
-
-  // makes lanes droppable
-  $('.lane').droppable({
-    accept: '.draggable',
-    drop: handleDrop,
   });
 });
 
@@ -196,3 +212,5 @@ $('#save-task').on('click', handleAddTask);
 window.addEventListener('beforeunload', (event) => {
   localStorage.clear();
 });
+
+
