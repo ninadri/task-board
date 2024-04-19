@@ -4,11 +4,10 @@ let nextId = JSON.parse(localStorage.getItem("nextId")) || 1;
 const taskNameInputEl = $('#task-name-input');
 const taskTypeInputEl = $('#task-description-input');
 const taskDateInputEl = $('#due-date-input');
-const taskFormEl = $('#task-form');
+const taskFormEl = $('#project-form');
 
 
 console.log("Retrieved taskList from localStorage:", taskList);
-$('#due-date-input').datepicker(); 
 
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
@@ -36,8 +35,7 @@ function createTaskCard(task) {
   const taskCard = $('<div>')
       .addClass('card project-card draggable my-3')
       .attr('id', 'draggable-nonvalid')
-      .attr('data-project-id', task.id)
-      .attr('data-droppable-id', 'droppable');
+      .attr('data-project-id', task.id);
   const cardHeader = $('<div>')
       .addClass('card-header h4')
       .text(task.name);
@@ -101,18 +99,18 @@ const todoList = $('#not-started-tasks');
    }
  }
 
-   $('.draggable').draggable({
-     opacity: 0.7,
-     zIndex: 100,
-     helper: function (e) {
-       const original = $(e.target).hasClass('ui-draggable')
-         ? $(e.target)
-         : $(e.target).closest('.ui-draggable');
-       return original.clone().css({
-        width: original.outerWidth(),
+    $('.draggable').draggable({
+      opacity: 0.7,
+      zIndex: 100,
+      helper: function (e) {
+        const original = $(e.target).hasClass('ui-draggable')
+          ? $(e.target)
+          : $(e.target).closest('.ui-draggable');
+        return original.clone().css({
+         width: original.outerWidth(),
+     });
+    },
     });
-   },
-   });
   }
 
 // Todo: create a function to handle deleting a task
@@ -122,7 +120,7 @@ function handleDeleteTask() {
 
   for (let i = 0; i < tasks.length; i++) { 
     if (tasks[i].id === projectId) { 
-      tasks.splice(i, 1); break; } }
+      tasks.splice(i, 1); break; }}
 
         
   saveTasksToStorage(tasks);
@@ -137,7 +135,7 @@ function handleAddTask(event) {
   const taskType = taskTypeInputEl.val(); 
   const taskDate = taskDateInputEl.val();
 
-  const newTask = {
+  const newTask = { 
       name: taskName,
       type: taskType,
       dueDate: taskDate,
@@ -157,8 +155,6 @@ function handleAddTask(event) {
 
   $('#exampleModal').modal('hide');
 }
-
-
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
@@ -181,36 +177,33 @@ taskFormEl.on('submit', handleAddTask);
 taskFormEl.on('click', '.btn-delete-project', handleDeleteTask);
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
-	// jQuery Ui Droppable
-  $(function() {
-    $('.droppable').droppable ({
-      accept: ".draggable",
-      classes: {
-        "ui-droppable-active": "ui-state-active",
-        "ui-droppable-hover": "ui-state-hover"
-      },
-      drop: function(event, ui) {
-        $(this)
-          .addClass("ui-state-highlight")
-          .find("p")
-          .html("Dropped!");
-      }
-    });
-  });
 
 $(document).ready(function () {
   renderTaskList();
 
-  $('#taskDueDate').datepicker({
-    changeMonth: true,
-    changeYear: true,
+  $('.droppable').droppable ({
+    accept: ".draggable",
+    classes: {
+      "ui-droppable-active": "ui-state-active",
+      "ui-droppable-hover": "ui-state-hover"
+    },
+    drop: function(event, ui) {
+      $(this)
+        .find("taskCard")
+    }
   });
 });
 
+$('#due-date-input').datepicker(); 
+
+  
+  $('.droppable').droppable({
+    accept: '.draggable',
+    drop: handleDrop
+  });
+   
 $('#save-task').on('click', handleAddTask);
 
 window.addEventListener('beforeunload', (event) => {
   localStorage.clear();
 });
-
-
