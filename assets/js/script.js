@@ -6,9 +6,7 @@ const taskTypeInputEl = $('#task-description-input');
 const taskDateInputEl = $('#due-date-input');
 const taskFormEl = $('#project-form');
 
-
 console.log("Retrieved taskList from localStorage:", taskList);
-
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
     let newId = nextId++;
@@ -92,9 +90,9 @@ const todoList = $('#not-started-tasks');
  for (let task of tasks) {
    if (task.status === 'to-do') {
      todoList.append(createTaskCard(task));
-   } else if (task.status === 'in-progress') {
+   } else if (task.status === 'in-progress-tasks') {
     inProgressList.append(createTaskCard(task));
-   } else if (task.status === 'done') {
+   } else if (task.status === 'completed-tasks') {
      doneList.append(createTaskCard(task));
    }
  }
@@ -115,7 +113,7 @@ const todoList = $('#not-started-tasks');
 
 // Todo: create a function to handle deleting a task
 function handleDeleteTask() {
-  const projectId = $(this).attr('data-project-id');
+  const projectId = parseInt($(this).attr('data-project-id'), 10);
   const tasks = readTasksFromStorage();
 
   for (let i = 0; i < tasks.length; i++) { 
@@ -164,7 +162,7 @@ function handleDrop(event, ui) {
   const newStatus = event.target.id;
 
   for (let task of tasks) {
-    if (task.id === projectId) {
+    if (task.id === parseInt(projectId)) {
       task.status = newStatus;
     }
 }
@@ -180,7 +178,7 @@ taskFormEl.on('click', '.btn-delete-project', handleDeleteTask);
 
 $(document).ready(function () {
   renderTaskList();
-
+ 
   $('.droppable').droppable ({
     accept: ".draggable",
     classes: {
@@ -196,12 +194,11 @@ $(document).ready(function () {
 
 $('#due-date-input').datepicker(); 
 
-  
-  $('.droppable').droppable({
-    accept: '.draggable',
-    drop: handleDrop
-  });
-   
+$('.lane').droppable({
+  accept: '.draggable',
+  drop: handleDrop
+});
+
 $('#save-task').on('click', handleAddTask);
 
 window.addEventListener('beforeunload', (event) => {
