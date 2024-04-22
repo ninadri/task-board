@@ -33,7 +33,7 @@ function saveTasksToStorage(tasks) {
 // Todo: create a function to create a task card
 function createTaskCard(task) {
   const taskCard = $('<div>')
-      .addClass('card project-card draggable my-3')
+      .addClass('card project-card draggable my-3 task-card')
       .attr('id', 'draggable-nonvalid')
       .attr('data-project-id', task.id);
   const cardHeader = $('<div>')
@@ -136,6 +136,7 @@ function handleAddTask(event) {
   const taskDate = taskDateInputEl.val();
 
   const newTask = { 
+      id: generateTaskId(),
       name: taskName,
       type: taskType,
       dueDate: taskDate,
@@ -146,7 +147,6 @@ function handleAddTask(event) {
   tasks.push(newTask);
 
   saveTasksToStorage(tasks);
-
   renderTaskList();
 
   taskNameInputEl.val('');
@@ -189,7 +189,7 @@ $(document).ready(function () {
     },
     drop: function(event, ui) {
       $(this)
-        .find("taskCard")
+        .find("taskFormEl")
     }
   });
 });
